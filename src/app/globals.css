@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+.text-primary-blue {
+  color: #0055d9;
+}
+
+.text-primary-grey {
+  color: #999999;
+}
+
+.p-primary {
+  @apply px-7;
+}
+
+.m-primary {
+  @apply mx-7;
+}
+
+body {
+  font-family: var(--font-cairo);
+}
+
+/* Extra large screens (e.g. 1536px and up) */
+
+@media (min-width: 1536px) {
+  html {
+    font-size: 18px;
+  }
+}
+
+/* Large screens (1280px - 1535px) */
+@media (max-width: 1535px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+/* Medium screens (1024px - 1279px) */
+@media (max-width: 1279px) {
+  html {
+    font-size: 15px;
+  }
+}
+
+/* Tablets (768px - 1023px) */
+@media (max-width: 1023px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+/* Small devices (480px - 767px) */
+@media (max-width: 767px) {
+  html {
+    font-size: 13px;
+  }
+}
+
+/* Extra small devices (below 480px) */
+@media (max-width: 479px) {
+  html {
+    font-size: 12px;
+  }
+}
