@@ -53,4 +53,14 @@ export async function getAllDoctors(): Promise<Doctor[]> {
   }
 }
 
-
+export async function getDoctorId(): Promise<number> {
+  try {
+    const res = await axios.get<number>(`${API_URL}/Doctor/doctor-id`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    });
+    return res.data;
+  } catch (err: any) {
+    console.error("Failed to fetch DoctorId:", err);
+    throw new Error(err.response?.data?.message || "Failed to fetch DoctorId");
+  }
+}

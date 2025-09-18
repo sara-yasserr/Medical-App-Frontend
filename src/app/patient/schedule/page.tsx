@@ -26,8 +26,12 @@ export default function ScheduleAppointment() {
 
   const [doctors, setDoctors] = useState<{ id: number; name: string; specialization: string }[]>([]);
   const [selectedSpecialization, setSelectedSpecialization] = useState("");
-
+const [minDateTime, setMinDateTime] = useState<string>("");
   useEffect(() => {
+     const now = new Date();
+  // Format to yyyy-MM-ddTHH:mm for datetime-local
+  const formatted = now.toISOString().slice(0, 16);
+  setMinDateTime(formatted);
     const fetchPatientAndDoctors = async () => {
       try {
         const pId = await getPatientId();
@@ -78,13 +82,15 @@ export default function ScheduleAppointment() {
         <label className="flex flex-col">
           Date & Time
           <input
-            type="datetime-local"
-            name="appointmentDate"
-            value={form.appointmentDate}
-            onChange={handleChange}
-            className="border p-2 rounded"
-            required
-          />
+  type="datetime-local"
+  name="appointmentDate"
+  value={form.appointmentDate}
+  onChange={handleChange}
+  min={minDateTime}  
+  className="border p-2 rounded"
+  required
+/>
+
         </label>
 
         <label className="flex flex-col">

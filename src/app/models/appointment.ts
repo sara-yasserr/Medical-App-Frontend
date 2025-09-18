@@ -25,6 +25,7 @@ export interface ReadAppointmentDTO {
   status: Status;
   doctorName: string;
   patientName: string;
+  age: number;
   patientId: number;
   doctorId: number;
 }

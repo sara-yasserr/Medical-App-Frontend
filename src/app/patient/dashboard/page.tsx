@@ -15,7 +15,7 @@ export default function PatientDashboard() {
   useEffect(() => {
     const fetchPatientIdAndAppointments = async () => {
       try {
-        const id = await getPatientId(); // API call للباك
+        const id = await getPatientId(); 
         if (!id) {
           setError("Patient not logged in or ID not found!");
           return;

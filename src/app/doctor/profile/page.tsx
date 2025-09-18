@@ -2,37 +2,37 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getPatientId } from "@/app/services/patientService";
-import { UpdatePatientDTO } from "@/app/models/patient";
-import { getPatientDetails, updatePatient } from "@/app/services/patientService";
+import { getDoctorId } from "@/app/services/doctorService";
+import { UpdateDoctorDTO, Specializations } from "@/app/models/doctor";
+import { getDoctorDetails, updateDoctor } from "@/app/services/doctorService";
 
-export default function UpdateProfile() {
+export default function UpdateDoctorProfile() {
   const router = useRouter();
-  const [form, setForm] = useState<UpdatePatientDTO>({
+  const [form, setForm] = useState<UpdateDoctorDTO>({
     firstName: "",
     lastName: "",
-    dateOfBirth: undefined,
     email: "",
     phoneNumber: "",
     password: "",
+    specialization: "",
   });
 
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchPatient = async () => {
+    const fetchDoctor = async () => {
       try {
-        const patientId = await getPatientId();
-        const data = await getPatientDetails(patientId);
-setForm({
-  firstName: data.firstName || "",
-  lastName: data.lastName || "",
-  dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth).toISOString().split("T")[0] : "",
-  email: data.email || "",
-  phoneNumber: data.phoneNumber || "",
-  password: "",
-});
+        const doctorId = await getDoctorId();
+        const data = await getDoctorDetails(doctorId);
+        setForm({
+          firstName: data.firstName || "",
+          lastName: data.lastName || "",
+          email: data.email || "",
+          phoneNumber: data.phoneNumber || "",
+          password: "",
+          specialization: data.specialization || "",
+        });
       } catch (err: any) {
         console.error(err);
         setMessage("Failed to load profile information");
@@ -41,10 +41,10 @@ setForm({
       }
     };
 
-    fetchPatient();
+    fetchDoctor();
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm(prev => ({
       ...prev,
@@ -55,11 +55,10 @@ setForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const patientId = await getPatientId();
-      await updatePatient(patientId, form);
+      const doctorId = await getDoctorId();
+      await updateDoctor(doctorId, form);
       setMessage("Profile updated successfully!");
-      // Redirect or stay on page
-      router.push("/patient/dashboard");
+      router.push("/doctor/dashboard");
     } catch (err: any) {
       setMessage(err.message || "Update failed");
     }
@@ -93,14 +92,6 @@ setForm({
               onChange={handleChange}
               className="border p-2 rounded"
             />
-<input
-  type="date"
-  name="dateOfBirth"
-  placeholder="Date of Birth"
-  value={form.dateOfBirth || ""}
-  onChange={handleChange}
-  className="border p-2 rounded"
-/>
             <input
               type="email"
               name="email"
@@ -125,6 +116,20 @@ setForm({
               onChange={handleChange}
               className="border p-2 rounded"
             />
+
+            {/* Dropdown for specialization */}
+            <select
+              name="specialization"
+              value={form.specialization}
+              onChange={handleChange}
+              className="border p-2 rounded"
+              required
+            >
+              <option value="">Select Specialization</option>
+              {Specializations.map(spec => (
+                <option key={spec} value={spec}>{spec}</option>
+              ))}
+            </select>
 
             <button
               type="submit"
