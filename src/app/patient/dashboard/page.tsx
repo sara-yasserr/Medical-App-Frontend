@@ -11,11 +11,12 @@ export default function PatientDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [patientId, setPatientId] = useState<number | null>(null);
+  const [showUpcomingOnly, setShowUpcomingOnly] = useState(false);
 
   useEffect(() => {
     const fetchPatientIdAndAppointments = async () => {
       try {
-        const id = await getPatientId(); 
+        const id = await getPatientId();
         if (!id) {
           setError("Patient not logged in or ID not found!");
           return;
@@ -34,10 +35,14 @@ export default function PatientDashboard() {
     fetchPatientIdAndAppointments();
   }, []);
 
+  const filteredAppointments = showUpcomingOnly
+    ? appointments.filter(a => new Date(a.appointmentDate) > new Date())
+    : appointments;
+
   return (
     <div className="h-svh flex flex-col items-center justify-center gap-6">
       <div className="rounded-lg shadow-2xl p-7 min-w-[600px]">
-        <h2 className="font-bold text-lg mb-4 text-center">Upcoming Appointments</h2>
+        <h2 className="font-bold text-lg mb-4 text-center">Appointments</h2>
 
         {loading && <p>Loading appointments...</p>}
         {error && <p className="text-red-500">{error}</p>}
@@ -47,26 +52,44 @@ export default function PatientDashboard() {
         )}
 
         {!loading && !error && appointments.length > 0 && (
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="border p-2">Date</th>
-                <th className="border p-2">Reason</th>
-                <th className="border p-2">Doctor</th>
-                <th className="border p-2">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {appointments.map((a) => (
-                <tr key={a.id}>
-                  <td className="border p-2">{new Date(a.appointmentDate).toLocaleString()}</td>
-                  <td className="border p-2">{a.reason}</td>
-                  <td className="border p-2">{a.doctorName}</td>
-                  <td className="border p-2">{statusLabels[a.status]}</td>
+          <>
+            {/* Toggle Show Upcoming */}
+            <div className="flex items-center mb-4">
+              <input
+                type="checkbox"
+                id="upcoming"
+                checked={showUpcomingOnly}
+                onChange={() => setShowUpcomingOnly(!showUpcomingOnly)}
+                className="mr-2"
+              />
+              <label htmlFor="upcoming" className="font-medium">
+                Show Upcoming Only
+              </label>
+            </div>
+
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="border p-2">Date</th>
+                  <th className="border p-2">Reason</th>
+                  <th className="border p-2">Doctor</th>
+                  <th className="border p-2">Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredAppointments.map((a) => (
+                  <tr key={a.id}>
+                    <td className="border p-2">
+                      {new Date(a.appointmentDate).toLocaleString()}
+                    </td>
+                    <td className="border p-2">{a.reason}</td>
+                    <td className="border p-2">{a.doctorName}</td>
+                    <td className="border p-2">{statusLabels[a.status]}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
         )}
       </div>
 
