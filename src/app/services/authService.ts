@@ -1,6 +1,6 @@
 import axios from "axios";
 import { LoginDTO, LoginResponse } from "../models/auth";
-
+import { jwtDecode } from "jwt-decode";
 const API_URL = process.env.NEXT_PUBLIC_API_URL as string;
 
 export async function login(loginData: LoginDTO): Promise<LoginResponse> {
@@ -17,5 +17,25 @@ export async function login(loginData: LoginDTO): Promise<LoginResponse> {
       throw new Error(error.response.data.message || "Login failed");
     }
     throw new Error("Something went wrong");
+  }
+}
+
+export function getPatientIdFromToken(): number | null {
+  if (typeof window === "undefined") return null;
+
+  const token = localStorage.getItem("token");
+  if (!token) return null;
+
+  try {
+    const decoded: any = jwtDecode(token);
+
+    // لو الـ token فيه claim باسم patientId
+    return decoded.patientId ?? null;
+
+    // لو الـ id متخزن في "sub"
+    // return Number(decoded.sub) ?? null;
+  } catch (err) {
+    console.error("Invalid token", err);
+    return null;
   }
 }
