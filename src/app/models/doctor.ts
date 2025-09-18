@@ -29,3 +29,15 @@ export interface UpdateDoctorDTO {
   phoneNumber?: string;
   password?: string;
 }
+
+export const Specializations = [
+  "Cardiology",
+  "Dermatology",
+  "Neurology",
+  "Pediatrics",
+  "Orthopedics",
+  "Psychiatry",
+  "General Medicine",
+] as const;
+
+export type Specialization = (typeof Specializations)[number];

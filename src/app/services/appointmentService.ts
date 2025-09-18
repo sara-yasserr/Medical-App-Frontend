@@ -1,4 +1,4 @@
-import axiosInstance from "@/lib/axiosInstance"; 
+import {axiosInstance} from "@/lib/axiosInstance"; 
 import { ReadAppointmentDTO, AppointmentDTO } from "../models/appointment";
 const API_URL = process.env.NEXT_PUBLIC_API_URL as string;
 

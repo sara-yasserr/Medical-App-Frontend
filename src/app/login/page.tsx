@@ -2,43 +2,51 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { login } from "../services/authService";
 import { LoginDTO, LoginResponse } from "../models/auth";
+import {jwtDecode} from "jwt-decode";
 
 const inputsData = [
-  {
-    name: "email",
-    type: "email",
-    placeholder: "Enter your email",
-  },
-  {
-    name: "password",
-    type: "password",
-    placeholder: "Enter your password",
-  },
+  { name: "email", type: "email", placeholder: "Enter your email" },
+  { name: "password", type: "password", placeholder: "Enter your password" },
 ];
 
 const Login = () => {
+  const router = useRouter();
   const [formData, setFormData] = useState<LoginDTO>({ email: "", password: "" });
   const [message, setMessage] = useState<string>("");
 
-  // handle change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // handle submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const data: LoginResponse = await login(formData);
-      setMessage("Login successful! Token saved.");
-      localStorage.setItem("token", data.token); 
+
+      // Save token
+      localStorage.setItem("token", data.token);
+
+      // Decode token to get role and user ID
+      const decoded: any = jwtDecode(data.token);
+
+      // Role claim from Microsoft Identity
+      const rolesClaim = decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+      const role = Array.isArray(rolesClaim) ? rolesClaim[0] : rolesClaim;
+
+      // Redirect based on role
+      if (role?.toLowerCase() === "patient") {
+        router.push("/patient/dashboard");
+      } else if (role?.toLowerCase() === "doctor") {
+        router.push("/doctor/dashboard");
+      } else {
+        setMessage("Role not recognized.");
+      }
+
     } catch (err: any) {
-      setMessage(err.message);
+      setMessage(err.message || "Login failed");
     }
   };
 
@@ -57,8 +65,8 @@ const Login = () => {
 
         {inputsData.map(({ type, name, placeholder }, index) => (
           <input
-            className="border border-[#DDD] p-1.5 min-w-[300px]"
             key={index}
+            className="border border-[#DDD] p-1.5 min-w-[300px]"
             type={type}
             name={name}
             placeholder={placeholder}
@@ -74,7 +82,7 @@ const Login = () => {
           Submit
         </button>
 
-        {message && <p className="text-sm mt-2">{message}</p>}
+        {message && <p className="text-sm mt-2 text-red-500">{message}</p>}
       </form>
     </div>
   );

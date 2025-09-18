@@ -19,3 +19,27 @@ export async function registerPatient(
     throw new Error("Something went wrong");
   }
 }
+
+export async function getPatientId(): Promise<number> {
+  try {
+    const res = await axios.get<number>(`${API_URL}/Patient/patient-id`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    });
+    return res.data;
+  } catch (err: any) {
+    console.error("Failed to fetch PatientId:", err);
+    throw new Error(err.response?.data?.message || "Failed to fetch PatientId");
+  }
+}
+
+export async function getDoctorId(): Promise<number> {
+  try {
+    const res = await axios.get<number>(`${API_URL}/Doctor/doctor-id`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    });
+    return res.data;
+  } catch (err: any) {
+    console.error("Failed to fetch DoctorId:", err);
+    throw new Error(err.response?.data?.message || "Failed to fetch DoctorId");
+  }
+}

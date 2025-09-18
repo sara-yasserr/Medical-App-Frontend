@@ -52,3 +52,5 @@ export async function getAllDoctors(): Promise<Doctor[]> {
     throw new Error(err?.message || "Failed to fetch doctors");
   }
 }
+
+

@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { registerDoctor } from "@/app/services/doctorService";
 import { RegisterDoctorDTO } from "../../models/doctor";
-
+import { Specializations } from "@/app/models/doctor";
 export default function RegisterDoctor() {
   const router = useRouter();
   const [form, setForm] = useState<RegisterDoctorDTO>({
@@ -17,7 +17,7 @@ export default function RegisterDoctor() {
   });
   const [message, setMessage] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -35,7 +35,8 @@ export default function RegisterDoctor() {
   const inputsData = [
     { name: "firstName", type: "text", placeholder: "First Name" },
     { name: "lastName", type: "text", placeholder: "Last Name" },
-    { name: "specialization", type: "text", placeholder: "Specialization" },
+    // الحقل الخاص بالتخصص سيصبح select
+    { name: "specialization", type: "select", placeholder: "Specialization" },
     { name: "email", type: "email", placeholder: "Email" },
     { name: "phoneNumber", type: "text", placeholder: "Phone Number" },
     { name: "password", type: "password", placeholder: "Password" },
@@ -56,17 +57,34 @@ export default function RegisterDoctor() {
         </div>
 
         {/* Inputs */}
-        {inputsData.map(({ name, type, placeholder }, index) => (
-          <input
-            key={index}
-            name={name}
-            type={type}
-            placeholder={placeholder}
-            value={(form as any)[name]}
-            onChange={handleChange}
-            className="border border-[#DDD] p-1.5 min-w-[300px]"
-          />
-        ))}
+        {inputsData.map(({ name, type, placeholder }, index) =>
+          type === "select" ? (
+            <select
+              key={index}
+              name={name}
+              value={(form as any)[name]}
+              onChange={handleChange}
+              className="border border-[#DDD] p-1.5 min-w-[300px]"
+              required
+            >
+              <option value="">Select Specialization</option>
+              {Specializations.map((spec, idx) => (
+                <option key={idx} value={spec}>{spec}</option>
+              ))}
+            </select>
+          ) : (
+            <input
+              key={index}
+              name={name}
+              type={type}
+              placeholder={placeholder}
+              value={(form as any)[name]}
+              onChange={handleChange}
+              className="border border-[#DDD] p-1.5 min-w-[300px]"
+              required
+            />
+          )
+        )}
 
         {/* Submit Button */}
         <button

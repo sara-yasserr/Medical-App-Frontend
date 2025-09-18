@@ -20,7 +20,8 @@ export async function login(loginData: LoginDTO): Promise<LoginResponse> {
   }
 }
 
-export function getIdFromToken(): number | null {
+
+export function getIdFromToken(): string | null {
   if (typeof window === "undefined") return null;
 
   const token = localStorage.getItem("token");
@@ -29,10 +30,26 @@ export function getIdFromToken(): number | null {
   try {
     const decoded: any = jwtDecode(token);
 
-    // الـ user.Id موجود في claim "sub" حسب الكود اللي عندك في الباك
-    return decoded.sub ? Number(decoded.sub) : null;
+    // backend بيحط الـ ID في claim باسم NameIdentifier
+    return decoded.NameIdentifier ? decoded.NameIdentifier.toString() : null;
   } catch (err) {
     console.error("Invalid token", err);
     return null;
   }
 }
+// export function getIdFromToken(): number | null {
+//   if (typeof window === "undefined") return null;
+
+//   const token = localStorage.getItem("token");
+//   if (!token) return null;
+
+//   try {
+//     const decoded: any = jwtDecode(token);
+
+//     // بعض الـ JWT decoders يحول NameIdentifier لـ nameid
+//     return decoded.nameid ? Number(decoded.nameid) : null;
+//   } catch (err) {
+//     console.error("Invalid token", err);
+//     return null;
+//   }
+// }

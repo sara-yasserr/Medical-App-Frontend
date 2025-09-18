@@ -1,58 +1,70 @@
+// ScheduleAppointment.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppointmentDTO } from "@/app/models/appointment";
 import { createAppointment } from "@/app/services/appointmentService";
-import { getIdFromToken } from "@/app/services/authService";
 import { getAllDoctors } from "@/app/services/doctorService";
+import { Doctor } from "@/app/models/doctor";
+import { getPatientId } from "@/app/services/patientService";
+import { Specializations } from "@/app/models/doctor";
 
 export default function ScheduleAppointment() {
   const router = useRouter();
-  const patientId = getIdFromToken();
 
+  const [patientId, setPatientId] = useState<string | null>(null);
   const [form, setForm] = useState<AppointmentDTO>({
     appointmentDate: "",
     reason: "",
     status: "Scheduled",
-    patientId: patientId || 0,
+    patientId: 0, 
     doctorId: 0,
   });
+
   const [message, setMessage] = useState("");
 
   const [doctors, setDoctors] = useState<{ id: number; name: string; specialization: string }[]>([]);
-  const [specializations, setSpecializations] = useState<string[]>([]);
   const [selectedSpecialization, setSelectedSpecialization] = useState("");
 
-  // جلب الدكاترة والتخصصات عند تحميل الصفحة
   useEffect(() => {
-    const fetchDoctors = async () => {
+    const fetchPatientAndDoctors = async () => {
       try {
-        const res = await getAllDoctors(); // service
+        const pId = await getPatientId();
+        setPatientId(pId.toString());
+        setForm(prev => ({ ...prev, patientId: pId }));
+
+        const res: Doctor[] = await getAllDoctors();
         const mappedDoctors = res.map(d => ({
           id: d.id,
-          name: d.firstName + " " + d.lastName,
+          name: `${d.firstName ?? ""} ${d.lastName ?? ""}`.trim(),
           specialization: d.specialization
         }));
         setDoctors(mappedDoctors);
-        setSpecializations([...new Set(mappedDoctors.map(d => d.specialization))]);
       } catch (err: any) {
         console.error(err);
+        setMessage("Failed to load data or patient not logged in!");
       }
     };
-    fetchDoctors();
+
+    fetchPatientAndDoctors();
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({
+      ...form,
+      [name]: name === "doctorId" ? Number(value) : value 
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      console.log("Submitting form:", form);
       await createAppointment(form);
       setMessage("Appointment scheduled successfully!");
-      router.push("/patient"); 
+      router.push("/patient/dashboard");
     } catch (err: any) {
       setMessage(err.message);
     }
@@ -96,8 +108,8 @@ export default function ScheduleAppointment() {
             className="border p-2 rounded"
           >
             <option value="">All</option>
-            {specializations.map(s => (
-              <option key={s} value={s}>{s}</option>
+            {Specializations.map(spec => (
+              <option key={spec} value={spec}>{spec}</option>
             ))}
           </select>
         </label>
@@ -124,7 +136,7 @@ export default function ScheduleAppointment() {
           Schedule Appointment
         </button>
 
-        {message && <p className="text-center mt-2">{message}</p>}
+        {message && <p className="text-center mt-2 text-red-500">{message}</p>}
       </form>
     </div>
   );

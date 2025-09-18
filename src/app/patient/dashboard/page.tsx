@@ -2,40 +2,39 @@
 import { useEffect, useState } from "react";
 import { getPatientAppointments } from "@/app/services/appointmentService";
 import { ReadAppointmentDTO, statusLabels } from "@/app/models/appointment";
-import { getPatientIdFromToken } from "@/app/services/authService";
+import { getPatientId } from "@/app/services/patientService";
 import { useRouter } from "next/navigation";
+
 export default function PatientDashboard() {
   const router = useRouter();
   const [appointments, setAppointments] = useState<ReadAppointmentDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-//   const [patientId, setPatientId] = useState<number | null>(null);
-// const patientId = getPatientIdFromToken();
-const patientId = 2;
+  const [patientId, setPatientId] = useState<number | null>(null);
 
+  useEffect(() => {
+    const fetchPatientIdAndAppointments = async () => {
+      try {
+        const id = await getPatientId(); // API call للباك
+        if (!id) {
+          setError("Patient not logged in or ID not found!");
+          return;
+        }
+        setPatientId(id);
 
-useEffect(() => {
-  if (!patientId) {
-    setError("Patient ID not found in token");
-    setLoading(false);
-    return;
-  }
+        const data = await getPatientAppointments(id);
+        setAppointments(data);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const fetchAppointments = async () => {
-    try {
-      const data = await getPatientAppointments(patientId);
-      setAppointments(data);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+    fetchPatientIdAndAppointments();
+  }, []);
 
-  fetchAppointments();
-}, [patientId]);
-
- return (
+  return (
     <div className="h-svh flex flex-col items-center justify-center gap-6">
       <div className="rounded-lg shadow-2xl p-7 min-w-[600px]">
         <h2 className="font-bold text-lg mb-4 text-center">Upcoming Appointments</h2>
