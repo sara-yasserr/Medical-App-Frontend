@@ -20,7 +20,7 @@ export async function login(loginData: LoginDTO): Promise<LoginResponse> {
   }
 }
 
-export function getPatientIdFromToken(): number | null {
+export function getIdFromToken(): number | null {
   if (typeof window === "undefined") return null;
 
   const token = localStorage.getItem("token");
@@ -29,11 +29,8 @@ export function getPatientIdFromToken(): number | null {
   try {
     const decoded: any = jwtDecode(token);
 
-    // لو الـ token فيه claim باسم patientId
-    return decoded.patientId ?? null;
-
-    // لو الـ id متخزن في "sub"
-    // return Number(decoded.sub) ?? null;
+    // الـ user.Id موجود في claim "sub" حسب الكود اللي عندك في الباك
+    return decoded.sub ? Number(decoded.sub) : null;
   } catch (err) {
     console.error("Invalid token", err);
     return null;

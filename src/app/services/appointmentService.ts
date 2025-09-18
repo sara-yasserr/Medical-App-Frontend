@@ -1,5 +1,5 @@
 import axiosInstance from "@/lib/axiosInstance"; 
-import { ReadAppointmentDTO } from "../models/appointment";
+import { ReadAppointmentDTO, AppointmentDTO } from "../models/appointment";
 const API_URL = process.env.NEXT_PUBLIC_API_URL as string;
 
 export async function getPatientAppointments(patientId: number): Promise<ReadAppointmentDTO[]> {
@@ -14,5 +14,17 @@ export async function getPatientAppointments(patientId: number): Promise<ReadApp
       throw new Error(err.response.data.message || JSON.stringify(err.response.data));
     }
     throw new Error(err?.message || "Failed to fetch patient appointments");
+  }
+}
+
+export async function createAppointment(appointment: AppointmentDTO) {
+  try {
+    const res = await axiosInstance.post(`${API_URL}/Appointment/schedule-appointment`, appointment);
+    return res.data;
+  } catch (err: any) {
+    if (err?.response?.data) {
+      throw new Error(err.response.data.message || JSON.stringify(err.response.data));
+    }
+    throw new Error(err?.message || "Failed to schedule appointment");
   }
 }

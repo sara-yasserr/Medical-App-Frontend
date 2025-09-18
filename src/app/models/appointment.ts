@@ -10,6 +10,14 @@ export const statusLabels: Record<Status, string> = {
   [Status.Cancelled]: "Cancelled",
 };
 
+export interface AppointmentDTO {
+  appointmentDate: string; 
+  reason: string;
+  status: string; 
+  patientId: number;
+  doctorId: number;
+}
+
 export interface ReadAppointmentDTO {
   id: number;
   appointmentDate: string; 
